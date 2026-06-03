@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Competitive Analysis Dashboard - Q1 26</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Chart.js DataLabels Plugin -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+
+    <style>
+        /* Hide scrollbar for top mobile nav and sub-navs */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* Smooth transitions for tabs */
+        .tab-content {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Custom Table Styling */
+        .fin-table th {
+            position: sticky;
+            top: 0;
+            background-color: #f8fafc;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-900 overflow-hidden h-screen flex">
+
+    <!-- Sidebar Navigation (Desktop) -->
+    <aside class="w-64 bg-slate-900 text-slate-300 flex-col hidden md:flex z-20 shadow-xl">
+        <div class="p-6 bg-slate-950 border-b border-slate-800">
+            <div class="flex items-center gap-3">
+                <!-- Styled Connection "Logo" -->
+                <div class="w-8 h-8 rounded bg-blue-800 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-blue-900/50">
+                    C
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-white tracking-tight">Connection</h1>
+                    <p class="text-xs text-blue-400 font-medium tracking-wide">Competitive Analysis</p>
+                </div>
+            </div>
+            <p class="text-[10px] text-slate-500 mt-3 uppercase tracking-widest font-semibold">Q1 2026 Edition</p>
+        </div>
+        <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto no-scrollbar">
+            <button data-main-tab="earnings" onclick="switchMainTab('earnings')" class="main-nav-btn bg-blue-800 text-white shadow-md w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all font-medium text-sm">
+                <i data-lucide="mic" class="w-5 h-5"></i> Earnings Call Q1 '26
+            </button>
+            <button data-main-tab="financials" onclick="switchMainTab('financials')" class="main-nav-btn hover:bg-slate-800 hover:text-white text-slate-400 w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all font-medium text-sm">
+                <i data-lucide="bar-chart-2" class="w-5 h-5"></i> Financial Comparisons
+            </button>
+            <button data-main-tab="eps" onclick="switchMainTab('eps')" class="main-nav-btn hover:bg-slate-800 hover:text-white text-slate-400 w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all font-medium text-sm">
+                <i data-lucide="target" class="w-5 h-5"></i> Analyst vs EPS
+            </button>
+            <button data-main-tab="cloud" onclick="switchMainTab('cloud')" class="main-nav-btn hover:bg-slate-800 hover:text-white text-slate-400 w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all font-medium text-sm">
+                <i data-lucide="cloud" class="w-5 h-5"></i> Cloud & AI Capabilities
+            </button>
+            <button data-main-tab="acquisitions" onclick="switchMainTab('acquisitions')" class="main-nav-btn hover:bg-slate-800 hover:text-white text-slate-400 w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all font-medium text-sm">
+                <i data-lucide="building-2" class="w-5 h-5"></i> M&A Strategy
+            </button>
+            <button data-main-tab="detailed" onclick="switchMainTab('detailed')" class="main-nav-btn hover:bg-slate-800 hover:text-white text-slate-400 w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all font-medium text-sm">
+                <i data-lucide="file-spreadsheet" class="w-5 h-5"></i> Detailed Financials
+            </button>
+        </nav>
+        <div class="p-4 border-t border-slate-800 text-xs text-slate-500">
+            Internal Confidential <br/> Not for distribution
+        </div>
+    </aside>
+
+    <!-- Mobile Top Nav -->
+    <div class="md:hidden fixed top-0 left-0 right-0 bg-slate-900 text-white z-50 flex overflow-x-auto no-scrollbar">
+        <button data-main-tab="earnings" onclick="switchMainTab('earnings')" class="mobile-nav-btn border-b-2 border-blue-500 text-blue-400 flex-shrink-0 flex items-center gap-2 px-4 py-3">
+            <span class="text-sm font-medium">Earnings</span>
+        </button>
+        <button data-main-tab="financials" onclick="switchMainTab('financials')" class="mobile-nav-btn text-slate-400 flex-shrink-0 flex items-center gap-2 px-4 py-3">
+            <span class="text-sm font-medium">Financials</span>
+        </button>
+        <button data-main-tab="eps" onclick="switchMainTab('eps')" class="mobile-nav-btn text-slate-400 flex-shrink-0 flex items-center gap-2 px-4 py-3">
+            <span class="text-sm font-medium">EPS</span>
+        </button>
+        <button data-main-tab="cloud" onclick="switchMainTab('cloud')" class="mobile-nav-btn text-slate-400 flex-shrink-0 flex items-center gap-2 px-4 py-3">
+            <span class="text-sm font-medium">Cloud</span>
+        </button>
+        <button data-main-tab="acquisitions" onclick="switchMainTab('acquisitions')" class="mobile-nav-btn text-slate-400 flex-shrink-0 flex items-center gap-2 px-4 py-3">
+            <span class="text-sm font-medium">M&A</span>
+        </button>
+        <button data-main-tab="detailed" onclick="switchMainTab('detailed')" class="mobile-nav-btn text-slate-400 flex-shrink-0 flex items-center gap-2 px-4 py-3">
+            <span class="text-sm font-medium">Details</span>
+        </button>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col h-full overflow-hidden mt-12 md:mt-0 relative bg-slate-50">
+        
+        <div class="p-4 md:p-8 z-10 flex-1 flex flex-col h-full overflow-hidden">
+            <header class="mb-6 flex justify-between items-end">
+                <div>
+                    <h2 id="page-title" class="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">Q1 26 Earnings Call Highlights</h2>
+                    <p class="text-slate-500 mt-1 text-sm">CNXN vs. CDW, NSIT, PLUS</p>
+                </div>
+            </header>
+            
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 flex-1 flex flex-col overflow-hidden relative">
+                
+                <!-- Main Tab 1: Earnings Call Highlights -->
+                <div id="main-tab-earnings" class="main-tab-content flex-col h-full flex">
+                    <!-- Sub-nav -->
+                    <div class="flex border-b border-slate-200 bg-slate-50 px-4 overflow-x-auto no-scrollbar shrink-0">
+                        <button onclick="switchSubTab('earnings', 'recurring')" data-sub-tab="earnings-recurring" class="sub-nav-btn active px-4 py-3 text-sm font-medium text-blue-800 border-b-2 border-blue-800 whitespace-nowrap">Recurring Themes</button>
+                        <button onclick="switchSubTab('earnings', 'cdw')" data-sub-tab="earnings-cdw" class="sub-nav-btn px-4 py-3 text-sm font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap border-b-2 border-transparent">CDW</button>
+                        <button onclick="switchSubTab('earnings', 'nsit')" data-sub-tab="earnings-nsit" class="sub-nav-btn px-4 py-3 text-sm font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap border-b-2 border-transparent">Insight (NSIT)</button>
+                        <button onclick="switchSubTab('earnings', 'plus')" data-sub-tab="earnings-plus" class="sub-nav-btn px-4 py-3 text-sm font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap border-b-2 border-transparent">e+ (PLUS)</button>
+                    </div>
+                    
+                    <div class="flex-1 overflow-y-auto p-6 bg-slate-50/50">
+                        <!-- Sub: Recurring Themes -->
+                        <div id="sub-earnings-recurring" class="sub-tab-content block max-w-4xl mx-auto">
+                            <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
+                                <div class="flex items-center gap-4 mb-8">
+                                    <div class="p-4 bg-blue-50 text-blue-800 rounded-xl"><i data-lucide="repeat" class="w-8 h-8"></i></div>
+                                    <div>
+                                        <h3 class="text-2xl font-bold text-slate-800">Earnings Call Takeaways</h3>
+                                        <p class="text-slate-500">Universal recurring themes across all competitors</p>
+                                    </div>
+                                </div>
+                                <ul class="space-y-6">
+                                    <li class="flex items-start gap-4 p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-blue-200 transition-colors">
+                                        <div class="mt-1 flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 text-blue-800 flex items-center justify-center font-bold text-sm">1</div>
+                                        <p class="text-slate-700 leading-relaxed"><strong class="text-slate-900">AI Structural Deployments:</strong> Across all three competitors, AI has moved past the exploratory phase into structural deployments.</p>
+                                    </li>
+                                    <li class="flex items-start gap-4 p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-blue-200 transition-colors">
+                                        <div class="mt-1 flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 text-blue-800 flex items-center justify-center font-bold text-sm">2</div>
+                                        <p class="text-slate-700 leading-relaxed"><strong class="text-slate-900">Supply Chain Friction:</strong> Supply chain friction and memory volatility particularly regarding memory chips and accelerated compute are universal headwinds.</p>
+                                    </li>
+                                    <li class="flex items-start gap-4 p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-blue-200 transition-colors">
+                                        <div class="mt-1 flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 text-blue-800 flex items-center justify-center font-bold text-sm">3</div>
+                                        <p class="text-slate-700 leading-relaxed"><strong class="text-slate-900">Elevated Backlogs:</strong> Historically elevated order backlogs driven by customer demand and supply chain friction.</p>
+                                    </li>
+                                    <li class="flex items-start gap-4 p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-blue-200 transition-colors">
+                                        <div class="mt-1 flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 text-blue-800 flex items-center justify-center font-bold text-sm">4</div>
+                                        <p class="text-slate-700 leading-relaxed"><strong class="text-slate-900">Efficiency Focus:</strong> Prioritizing utilizing AI and internal restructuring to do more with less and drive efficiency.</p>
+                                    </li>
+                                    <li class="flex items-start gap-4 p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-blue-200 transition-colors">
+                                        <div class="mt-1 flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 text-blue-800 flex items-center justify-center font-bold text-sm">5</div>
+                                        <p class="text-slate-700 leading-relaxed"><strong class="text-slate-900">Cautious H2 Tone:</strong> Despite strong results, all three competitors adopted a cautious tone regarding the second half of the year.</p>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Sub: CDW -->
+                        <div id="sub-earnings-cdw" class="sub-tab-content hidden">
+                            <div class="mb-6 flex flex-col md:flex-row md:items-center gap-4 justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="bg-red-600 text-white font-black text-2xl tracking-tighter italic px-3 py-1 rounded">CDW</div>
+                                </div>
+                                <h4 class="text-lg font-semibold text-slate-700">"Geared for growth through AI-first execution"</h4>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="bg-white p-6 rounded-xl border-t-4 border-t-red-500 shadow-sm border border-slate-200">
+                                    <h5 class="font-bold text-slate-800 mb-4 flex items-center gap-2"><i data-lucide="trending-up" class="w-5 h-5 text-slate-400"></i> Financial Pulse</h5>
+                                    <ul class="space-y-3 text-sm text-slate-600">
+                                        <li><strong>Q1 Results:</strong> Delivered net sales of $5.7 billion (+9%) and record non-GAAP net income per share of $2.28 (+6.3%).</li>
+                                        <li><strong>Segment growth:</strong> Commercial sector +10% and international +18% offset localized market challenge in Fed and Hi ed.</li>
+                                        <li><strong>26 Outlook:</strong> Expects GP to grow in the low to mid single digits for full year 2026 driven by elevated backlog.</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-white p-6 rounded-xl border-t-4 border-t-slate-700 shadow-sm border border-slate-200">
+                                    <h5 class="font-bold text-slate-800 mb-4 flex items-center gap-2"><i data-lucide="settings" class="w-5 h-5 text-slate-400"></i> Operational</h5>
+                                    <ul class="space-y-3 text-sm text-slate-600">
+                                        <li><strong>Geared for Growth:</strong> Launched multi-year AI powered modernization targeting quote to cash simplification ($100M-$200M run rate savings by 27/28).</li>
+                                        <li><strong>GTM alignment:</strong> Executing under a newly structured coverage model aligned by cust size and industry verticals.</li>
+                                        <li><strong>Internal AI:</strong> Deployed "CDW Assist super agent" to help sales prioritize opportunities.</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-white p-6 rounded-xl border-t-4 border-t-blue-500 shadow-sm border border-slate-200">
+                                    <h5 class="font-bold text-slate-800 mb-4 flex items-center gap-2"><i data-lucide="cpu" class="w-5 h-5 text-slate-400"></i> AI & Next Gen tech</h5>
+                                    <ul class="space-y-3 text-sm text-slate-600">
+                                        <li><strong>AI-First Strategy:</strong> Positioning as "AI first and outcome obsessed" embedding AI directly into core capabilities.</li>
+                                        <li><strong>GPU aaS:</strong> Finalized strategic relationship with Boost Run to deliver AI infrastructure/compute.</li>
+                                        <li><strong>Enterprise deployment:</strong> Secured nearly 8-figure deal with large financial services company for private AI factory.</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-white p-6 rounded-xl border-t-4 border-t-amber-500 shadow-sm border border-slate-200">
+                                    <h5 class="font-bold text-slate-800 mb-4 flex items-center gap-2"><i data-lucide="globe" class="w-5 h-5 text-slate-400"></i> Market Sentiment</h5>
+                                    <ul class="space-y-3 text-sm text-slate-600">
+                                        <li><strong>Memory Volatility:</strong> Customers exhibited buying urgency pulling forward H/W purchases to get ahead of constraints.</li>
+                                        <li><strong>Infrastructure prioritization:</strong> Spending skewed heavily toward networking, server and storage (each up +20%).</li>
+                                        <li><strong>Lead time normalization:</strong> Component lead times are extending but becoming more orderly.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sub: NSIT -->
+                        <div id="sub-earnings-nsit" class="sub-tab-content hidden">
+                            <div class="mb-6 flex flex-col md:flex-row md:items-center gap-4 justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="text-purple-700 font-black text-2xl tracking-tighter flex items-center gap-1">Insight <span class="text-red-500 text-3xl leading-none">.</span><span class="text-purple-700 text-3xl leading-none">|</span></div>
+                                </div>
+                                <h4 class="text-lg font-semibold text-slate-700">"Scaling through Cloud and AI resilience"</h4>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="bg-white p-6 rounded-xl border-t-4 border-t-purple-600 shadow-sm border border-slate-200">
+                                    <h5 class="font-bold text-slate-800 mb-4 flex items-center gap-2"><i data-lucide="trending-up" class="w-5 h-5 text-slate-400"></i> Financial Pulse</h5>
+                                    <ul class="space-y-3 text-sm text-slate-600">
+                                        <li><strong>Q1 Results:</strong> Delivered net revenue of $2.1B (14% GP increase). Adj diluted EPS grew 26% to $2.88.</li>
+                                        <li><strong>2026 Outlook:</strong> Expects full year GP growth in low single digits.</li>
+                                        <li><strong>Cloud & Services:</strong> Cloud GP increased 35% driven by SaaS, IaaS, and security. Core Services GP grew 19%.</li>
+                                        <li><strong>Capital Allocation:</strong> Pausing all M&A for 2026 to focus on organic growth and integration.</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-white p-6 rounded-xl border-t-4 border-t-slate-700 shadow-sm border border-slate-200">
+                                    <h5 class="font-bold text-slate-800 mb-4 flex items-center gap-2"><i data-lucide="settings" class="w-5 h-5 text-slate-400"></i> Operational</h5>
+                                    <ul class="space-y-3 text-sm text-slate-600">
+                                        <li><strong>Leadership:</strong> New CEO Jack Azagury is directly overseeing North America business.</li>
+                                        <li><strong>Operating Leverage:</strong> Accelerating integration of acquisitions, utilizing AI internally, leveraging offshore talent.</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-white p-6 rounded-xl border-t-4 border-t-blue-500 shadow-sm border border-slate-200">
+                                    <h5 class="font-bold text-slate-800 mb-4 flex items-center gap-2"><i data-lucide="cpu" class="w-5 h-5 text-slate-400"></i> AI & Next Gen tech</h5>
+                                    <ul class="space-y-3 text-sm text-slate-600">
+                                        <li><strong>AI Pivot:</strong> Leading solution integrator for AI, targeting mid-market clients.</li>
+                                        <li><strong>Predictive AI:</strong> Built real-time predictive AI model using Snowflake for premium appliance manufacturer.</li>
+                                        <li><strong>Copilot & Security:</strong> Migrated credit union to Azure and deployed M365 with Copilot saving $250K annually.</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-white p-6 rounded-xl border-t-4 border-t-amber-500 shadow-sm border border-slate-200">
+                                    <h5 class="font-bold text-slate-800 mb-4 flex items-center gap-2"><i data-lucide="globe" class="w-5 h-5 text-slate-400"></i> Market Sentiment</h5>
+                                    <ul class="space-y-3 text-sm text-slate-600">
+                                        <li><strong>Elevated Backlog:</strong> Exited Q1 with strong hardware backlog at most elevated level in multiple years.</li>
+                                        <li><strong>Memory Volatility:</strong> Prices have not settled, extended lead times creating complexity.</li>
+                                        <li><strong>Subdued Spend:</strong> Expects spending from corporate and large enterprise to remain subdued.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sub: PLUS -->
+                        <div id="sub-earnings-plus" class="sub-tab-content hidden">
+                            <div class="mb-6 flex flex-col md:flex-row md:items-center gap-4 justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="bg-sky-500 text-white font-serif italic text-2xl px-3 py-1 rounded flex items-center gap-1">e <span class="text-base font-sans font-bold">+</span></div>
+                                </div>
+                                <h4 class="text-lg font-semibold text-slate-700">"Pure-Play transformation and operating leverage scaling"</h4>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="bg-white p-6 rounded-xl border-t-4 border-t-sky-500 shadow-sm border border-slate-200">
+                                    <h5 class="font-bold text-slate-800 mb-4 flex items-center gap-2"><i data-lucide="trending-up" class="w-5 h-5 text-slate-400"></i> Financial Pulse</h5>
+                                    <ul class="space-y-3 text-sm text-slate-600">
+                                        <li><strong>Record FY26:</strong> Reached record $3.8B in full-year gross billings (+17%).</li>
+                                        <li><strong>EPS Accel:</strong> Q4 FY26 diluted EPS increased 53% to $0.78, full-year surged 64% to $4.71.</li>
+                                        <li><strong>FY27 Guidance:</strong> Introduced mid-single-digit growth guidance across net sales, GP, and adj EBITDA.</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-white p-6 rounded-xl border-t-4 border-t-slate-700 shadow-sm border border-slate-200">
+                                    <h5 class="font-bold text-slate-800 mb-4 flex items-center gap-2"><i data-lucide="settings" class="w-5 h-5 text-slate-400"></i> Operational</h5>
+                                    <ul class="space-y-3 text-sm text-slate-600">
+                                        <li><strong>Strong Service Base:</strong> Full-year services revenue grew 15.6%. Managed services expanded 11%.</li>
+                                        <li><strong>NPS:</strong> 74</li>
+                                        <li><strong>Temp Delays:</strong> Pro services experienced temporary project timeline delays with select retail clients.</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-white p-6 rounded-xl border-t-4 border-t-blue-500 shadow-sm border border-slate-200">
+                                    <h5 class="font-bold text-slate-800 mb-4 flex items-center gap-2"><i data-lucide="cpu" class="w-5 h-5 text-slate-400"></i> AI & Next Gen tech</h5>
+                                    <ul class="space-y-3 text-sm text-slate-600">
+                                        <li><strong>AI Infrastructure:</strong> Partnered with Digital Realty to create AI Experience Center.</li>
+                                        <li><strong>Early Journey:</strong> Engaging enterprise/mid-market early to define AI use cases.</li>
+                                        <li><strong>Dell Recognition:</strong> Named Dell Channel Strategic Impact Partner of the Year.</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-white p-6 rounded-xl border-t-4 border-t-amber-500 shadow-sm border border-slate-200">
+                                    <h5 class="font-bold text-slate-800 mb-4 flex items-center gap-2"><i data-lucide="globe" class="w-5 h-5 text-slate-400"></i> Market Sentiment</h5>
+                                    <ul class="space-y-3 text-sm text-slate-600">
+                                        <li><strong>Prudent Outlook:</strong> Factored conservatism into FY27 guidance due to macro and chip supply risks.</li>
+                                        <li><strong>Memory Constraints:</strong> Mindful of ongoing global memory chip shortages extending lead times.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Tab 2: Financial Comparisons -->
+                <div id="main-tab-financials" class="main-tab-content flex-col h-full hidden">
+                    <div class="flex border-b border-slate-200 bg-slate-50 px-4 overflow-x-auto no-scrollbar shrink-0">
+                        <button onclick="updateFinancialMetric('opMargin')" id="fin-btn-opMargin" class="fin-sub-btn active px-4 py-3 text-sm font-medium text-blue-800 border-b-2 border-blue-800 whitespace-nowrap">Operating Margin %</button>
+                        <button onclick="updateFinancialMetric('ebitda')" id="fin-btn-ebitda" class="fin-sub-btn px-4 py-3 text-sm font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap border-b-2 border-transparent">EBITDA %</button>
+                        <button onclick="updateFinancialMetric('gpYoy')" id="fin-btn-gpYoy" class="fin-sub-btn px-4 py-3 text-sm font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap border-b-2 border-transparent">GP YoY Trend</button>
+                        <button onclick="updateFinancialMetric('sgaYoy')" id="fin-btn-sgaYoy" class="fin-sub-btn px-4 py-3 text-sm font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap border-b-2 border-transparent">SG&A YoY Trend</button>
+                        <button onclick="updateFinancialMetric('roe')" id="fin-btn-roe" class="fin-sub-btn px-4 py-3 text-sm font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap border-b-2 border-transparent">Return on Equity</button>
+                    </div>
+                    <div class="flex-1 p-6 relative flex flex-col">
+                        <h3 id="fin-chart-title" class="text-xl font-bold text-slate-800 mb-4">Operating Margin %</h3>
+                        <div class="flex-1 relative min-h-[400px]">
+                            <canvas id="financialChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Tab 3: Analyst vs EPS -->
+                <div id="main-tab-eps" class="main-tab-content flex-col h-full hidden p-6 overflow-y-auto">
+                    <h3 class="text-xl font-bold text-slate-800 mb-4">CEPS Performance Vs Analyst Estimates</h3>
+                    <div class="overflow-x-auto bg-white rounded-xl border border-slate-200 shadow-sm">
+                        <table class="min-w-full text-sm text-left fin-table">
+                            <thead class="text-xs text-slate-600 uppercase bg-slate-100 border-b border-slate-200">
+                                <tr>
+                                    <th scope="col" class="px-4 py-3">Company</th>
+                                    <th scope="col" class="px-4 py-3">Type</th>
+                                    <th scope="col" class="px-3 py-3">FQ1 25</th>
+                                    <th scope="col" class="px-3 py-3">FQ2 25</th>
+                                    <th scope="col" class="px-3 py-3">FQ3 25</th>
+                                    <th scope="col" class="px-3 py-3">FQ4 25</th>
+                                    <th scope="col" class="px-3 py-3 bg-blue-50">FQ1 26</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                <!-- Connection -->
+                                <tr>
+                                    <td rowspan="2" class="px-4 py-3 font-semibold text-slate-800 border-r border-slate-100 align-top">Connection</td>
+                                    <td class="px-4 py-2 text-slate-700">Actual</td>
+                                    <td class="px-3 py-2 text-emerald-600 font-medium">$0.60</td>
+                                    <td class="px-3 py-2 text-emerald-600 font-medium">$0.97</td>
+                                    <td class="px-3 py-2 text-red-500 font-medium">$0.97</td>
+                                    <td class="px-3 py-2 text-emerald-600 font-medium">$0.91</td>
+                                    <td class="px-3 py-2 bg-blue-50/50 text-emerald-600 font-medium">$0.77</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-2 text-slate-500">Estimate</td>
+                                    <td class="px-3 py-2 text-slate-500">$0.42</td>
+                                    <td class="px-3 py-2 text-slate-500">$0.91</td>
+                                    <td class="px-3 py-2 text-slate-500">$1.01</td>
+                                    <td class="px-3 py-2 text-slate-500">$0.86</td>
+                                    <td class="px-3 py-2 bg-blue-50/50 text-slate-500">$0.62</td>
+                                </tr>
+                                <!-- Insight -->
+                                <tr class="bg-slate-50 border-t-2 border-slate-200">
+                                    <td rowspan="2" class="px-4 py-3 font-semibold text-slate-800 border-r border-slate-100 align-top">Insight</td>
+                                    <td class="px-4 py-2 text-slate-700">Actual</td>
+                                    <td class="px-3 py-2 text-emerald-600 font-medium">$2.06</td>
+                                    <td class="px-3 py-2 text-red-500 font-medium">$2.45</td>
+                                    <td class="px-3 py-2 text-red-500 font-medium">$2.43</td>
+                                    <td class="px-3 py-2 text-emerald-600 font-medium">$2.96</td>
+                                    <td class="px-3 py-2 bg-blue-50/50 text-emerald-600 font-medium">$2.88</td>
+                                </tr>
+                                <tr class="bg-slate-50">
+                                    <td class="px-4 py-2 text-slate-500">Estimate</td>
+                                    <td class="px-3 py-2 text-slate-500">$2.01</td>
+                                    <td class="px-3 py-2 text-slate-500">$2.47</td>
+                                    <td class="px-3 py-2 text-slate-500">$2.49</td>
+                                    <td class="px-3 py-2 text-slate-500">$2.84</td>
+                                    <td class="px-3 py-2 bg-blue-50/50 text-slate-500">$2.44</td>
+                                </tr>
+                                <!-- CDW -->
+                                <tr class="border-t-2 border-slate-200">
+                                    <td rowspan="2" class="px-4 py-3 font-semibold text-slate-800 border-r border-slate-100 align-top">CDW</td>
+                                    <td class="px-4 py-2 text-slate-700">Actual</td>
+                                    <td class="px-3 py-2 text-emerald-600 font-medium">$2.15</td>
+                                    <td class="px-3 py-2 text-emerald-600 font-medium">$2.60</td>
+                                    <td class="px-3 py-2 text-emerald-600 font-medium">$2.71</td>
+                                    <td class="px-3 py-2 text-emerald-600 font-medium">$2.57</td>
+                                    <td class="px-3 py-2 bg-blue-50/50 text-red-500 font-medium">$2.28</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-2 text-slate-500">Estimate</td>
+                                    <td class="px-3 py-2 text-slate-500">$1.96</td>
+                                    <td class="px-3 py-2 text-slate-500">$2.49</td>
+                                    <td class="px-3 py-2 text-slate-500">$2.62</td>
+                                    <td class="px-3 py-2 text-slate-500">$2.44</td>
+                                    <td class="px-3 py-2 bg-blue-50/50 text-slate-500">$2.29</td>
+                                </tr>
+                                <!-- PLUS -->
+                                <tr class="bg-slate-50 border-t-2 border-slate-200">
+                                    <td rowspan="2" class="px-4 py-3 font-semibold text-slate-800 border-r border-slate-100 align-top">e+ (PLUS)</td>
+                                    <td class="px-4 py-2 text-slate-700">Actual</td>
+                                    <td class="px-3 py-2 text-emerald-600 font-medium">$1.11</td>
+                                    <td class="px-3 py-2 text-emerald-600 font-medium">$1.26</td>
+                                    <td class="px-3 py-2 text-emerald-600 font-medium">$1.53</td>
+                                    <td class="px-3 py-2 text-emerald-600 font-medium">$1.45</td>
+                                    <td class="px-3 py-2 bg-blue-50/50 text-emerald-600 font-medium">$1.00</td>
+                                </tr>
+                                <tr class="bg-slate-50">
+                                    <td class="px-4 py-2 text-slate-500">Estimate</td>
+                                    <td class="px-3 py-2 text-slate-500">$0.87</td>
+                                    <td class="px-3 py-2 text-slate-500">$1.11</td>
+                                    <td class="px-3 py-2 text-slate-500">$0.95</td>
+                                    <td class="px-3 py-2 text-slate-500">$1.01</td>
+                                    <td class="px-3 py-2 bg-blue-50/50 text-slate-500">$0.98</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Main Tab 4: Cloud & AI Capabilities -->
+                <div id="main-tab-cloud" class="main-tab-content flex-col h-full hidden">
+                    <!-- Sub-nav -->
+                    <div class="flex border-b border-slate-200 bg-slate-50 px-4 overflow-x-auto no-scrollbar shrink-0">
+                        <button onclick="switchSubTab('cloud', 'overview')" data-sub-tab="cloud-overview" class="sub-nav-btn active px-4 py-3 text-sm font-medium text-blue-800 border-b-2 border-blue-800 whitespace-nowrap">Radar Overview</button>
+                        <button onclick="switchSubTab('cloud', 'msft')" data-sub-tab="cloud-msft" class="sub-nav-btn px-4 py-3 text-sm font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap border-b-2 border-transparent">Microsoft</button>
+                        <button onclick="switchSubTab('cloud', 'gcp')" data-sub-tab="cloud-gcp" class="sub-nav-btn px-4 py-3 text-sm font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap border-b-2 border-transparent">Google Cloud</button>
+                        <button onclick="switchSubTab('cloud', 'aws')" data-sub-tab="cloud-aws" class="sub-nav-btn px-4 py-3 text-sm font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap border-b-2 border-transparent">AWS</button>
+                    </div>
+
+                    <div class="flex-1 overflow-y-auto p-6 bg-slate-50/50">
+                        <!-- Cloud Sub: Overview -->
+                        <div id="sub-cloud-overview" class="sub-tab-content block h-full flex flex-col">
+                            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex-1 flex flex-col">
+                                <h4 class="font-bold text-slate-800 text-center mb-4">Ecosystem Capabilities Radar</h4>
+                                <div class="flex-1 relative min-h-[400px]">
+                                    <canvas id="radarChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cloud Sub: Microsoft -->
+                        <div id="sub-cloud-msft" class="sub-tab-content hidden max-w-5xl mx-auto">
+                            <div class="bg-white p-8 rounded-xl border border-slate-200 shadow-sm">
+                                <h3 class="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+                                    <i data-lucide="server" class="text-blue-500"></i> Microsoft Capabilities Score
+                                </h3>
+                                <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-100 text-center">
+                                        <div class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1">Insight</div>
+                                        <div class="text-3xl font-black text-purple-700">21</div>
+                                    </div>
+                                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-100 text-center">
+                                        <div class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1">CDW</div>
+                                        <div class="text-3xl font-black text-red-600">18</div>
+                                    </div>
+                                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-100 text-center">
+                                        <div class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1">Connection</div>
+                                        <div class="text-3xl font-black text-blue-800">10</div>
+                                    </div>
+                                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-100 text-center">
+                                        <div class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1">e+</div>
+                                        <div class="text-3xl font-black text-sky-500">1</div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h4 class="font-bold text-slate-800 mb-4 border-b border-slate-200 pb-2">Detailed Microsoft Capabilities Evaluated</h4>
+                                    <!-- Populated dynamically via JS -->
+                                    <div id="msft-table-container"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cloud Sub: GCP -->
+                        <div id="sub-cloud-gcp" class="sub-tab-content hidden max-w-5xl mx-auto">
+                            <div class="bg-white p-8 rounded-xl border border-slate-200 shadow-sm">
+                                <h3 class="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+                                    <i data-lucide="cloud" class="text-amber-500"></i> Google Cloud Capabilities Score
+                                </h3>
+                                <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-100 text-center">
+                                        <div class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1">Insight (SADA)</div>
+                                        <div class="text-3xl font-black text-purple-700">11</div>
+                                    </div>
+                                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-100 text-center">
+                                        <div class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1">CDW</div>
+                                        <div class="text-3xl font-black text-red-600">3</div>
+                                    </div>
+                                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-100 text-center">
+                                        <div class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1">Connection</div>
+                                        <div class="text-3xl font-black text-slate-400">0</div>
+                                    </div>
+                                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-100 text-center">
+                                        <div class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1">e+</div>
+                                        <div class="text-3xl font-black text-slate-400">0</div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h4 class="font-bold text-slate-800 mb-4 border-b border-slate-200 pb-2">Detailed Google Cloud Capabilities Evaluated</h4>
+                                    <!-- Populated dynamically via JS -->
+                                    <div id="gcp-table-container"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cloud Sub: AWS -->
+                        <div id="sub-cloud-aws" class="sub-tab-content hidden max-w-4xl mx-auto">
+                            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                                <div class="p-6 border-b border-slate-200 flex items-center gap-2">
+                                    <i data-lucide="database" class="text-orange-500"></i>
+                                    <h3 class="text-xl font-bold text-slate-800">AWS Competencies & Certifications</h3>
+                                </div>
+                                <table class="min-w-full text-sm text-left">
+                                    <thead class="text-xs text-slate-600 uppercase bg-slate-50 border-b border-slate-200">
+                                        <tr>
+                                            <th class="px-6 py-4">Metric</th>
+                                            <th class="px-4 py-4 text-center">Connection</th>
+                                            <th class="px-4 py-4 text-center">Insight</th>
+                                            <th class="px-4 py-4 text-center">CDW</th>
+                                            <th class="px-4 py-4 text-center">CDW (Mission)</th>
+                                            <th class="px-4 py-4 text-center">e+</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100">
+                                        <tr>
+                                            <td class="px-6 py-4 font-semibold text-slate-800">AWS Competencies</td>
+                                            <td class="px-4 py-4 text-center text-slate-400">0</td>
+                                            <td class="px-4 py-4 text-center font-bold text-purple-700">5</td>
+                                            <td class="px-4 py-4 text-center font-bold text-red-600">8</td>
+                                            <td class="px-4 py-4 text-center font-bold text-red-600">12</td>
+                                            <td class="px-4 py-4 text-center font-bold text-sky-500">4</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-6 py-4 font-semibold text-slate-800">Partner Programs</td>
+                                            <td class="px-4 py-4 text-center font-bold text-blue-800">1</td>
+                                            <td class="px-4 py-4 text-center font-bold text-purple-700">5</td>
+                                            <td class="px-4 py-4 text-center font-bold text-red-600">7</td>
+                                            <td class="px-4 py-4 text-center font-bold text-red-600">7</td>
+                                            <td class="px-4 py-4 text-center font-bold text-sky-500">4</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-6 py-4 font-semibold text-slate-800">AWS Service Validations</td>
+                                            <td class="px-4 py-4 text-center text-slate-400">0</td>
+                                            <td class="px-4 py-4 text-center font-bold text-purple-700">3</td>
+                                            <td class="px-4 py-4 text-center font-bold text-red-600">1</td>
+                                            <td class="px-4 py-4 text-center font-bold text-red-600">6</td>
+                                            <td class="px-4 py-4 text-center font-bold text-sky-500">1</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-6 py-4 font-semibold text-slate-800">AWS Certifications</td>
+                                            <td class="px-4 py-4 text-center font-bold text-blue-800">5+</td>
+                                            <td class="px-4 py-4 text-center font-bold text-purple-700">300+</td>
+                                            <td class="px-4 py-4 text-center font-bold text-red-600">300+</td>
+                                            <td class="px-4 py-4 text-center font-bold text-red-600">300+</td>
+                                            <td class="px-4 py-4 text-center font-bold text-sky-500">20+</td>
+                                        </tr>
+                                        <tr class="bg-slate-50/50">
+                                            <td class="px-6 py-4 font-semibold text-slate-800">AWS Customer Launches</td>
+                                            <td class="px-4 py-4 text-center font-bold text-blue-800">20+</td>
+                                            <td class="px-4 py-4 text-center font-bold text-purple-700">700+</td>
+                                            <td class="px-4 py-4 text-center font-bold text-red-600">1500+</td>
+                                            <td class="px-4 py-4 text-center font-bold text-red-600">3900+</td>
+                                            <td class="px-4 py-4 text-center font-bold text-sky-500">50+</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Tab 5: M&A Strategy -->
+                <div id="main-tab-acquisitions" class="main-tab-content p-6 hidden h-full overflow-y-auto">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm relative min-h-[350px] flex-1 flex flex-col">
+                            <h4 class="font-bold text-slate-700 mb-2 text-center text-lg">Acquisition Volume (Since 2015)</h4>
+                            <div class="flex-1 relative"><canvas id="acqVolumeChart"></canvas></div>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm relative min-h-[350px] flex-1 flex flex-col">
+                            <h4 class="font-bold text-slate-700 mb-2 text-center text-lg">Estimated Capital Deployed ($M)</h4>
+                            <div class="flex-1 relative"><canvas id="acqCostChart"></canvas></div>
+                        </div>
+                    </div>
+              
+                    <div class="bg-slate-50 rounded-xl border border-slate-200 p-6">
+                        <h4 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
+                            <i data-lucide="activity" class="text-slate-400 w-5 h-5"></i> Notable Recent Acquisitions
+                        </h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="p-4 bg-white rounded-lg border-l-4 border-purple-500 shadow-sm">
+                                <h5 class="font-bold text-slate-800">SADA <span class="text-slate-400 font-normal text-sm">(2023) - Insight</span></h5>
+                                <p class="text-sm text-slate-600 mt-1 mb-2">Google Cloud solutions and services. Huge boost to GCP capabilities.</p>
+                                <div class="font-mono font-bold text-slate-700 bg-slate-100 px-2 py-1 rounded inline-block text-xs">$620M</div>
+                            </div>
+                            <div class="p-4 bg-white rounded-lg border-l-4 border-red-500 shadow-sm">
+                                <h5 class="font-bold text-slate-800">Sirius <span class="text-slate-400 font-normal text-sm">(2021) - CDW</span></h5>
+                                <p class="text-sm text-slate-600 mt-1 mb-2">Massive acquisition expanding CDW's IT strategy capabilities.</p>
+                                <div class="font-mono font-bold text-slate-700 bg-slate-100 px-2 py-1 rounded inline-block text-xs">$2.36B</div>
+                            </div>
+                            <div class="p-4 bg-white rounded-lg border-l-4 border-red-500 shadow-sm">
+                                <h5 class="font-bold text-slate-800">Mission Cloud <span class="text-slate-400 font-normal text-sm">(2024) - CDW</span></h5>
+                                <p class="text-sm text-slate-600 mt-1 mb-2">AWS Premier partner, securing CDW's dominance in AWS competencies.</p>
+                                <div class="font-mono font-bold text-slate-700 bg-slate-100 px-2 py-1 rounded inline-block text-xs">$324M</div>
+                            </div>
+                            <div class="p-4 bg-white rounded-lg border-l-4 border-blue-800 shadow-sm">
+                                <h5 class="font-bold text-slate-800">Softmart <span class="text-slate-400 font-normal text-sm">(2016) - Connection</span></h5>
+                                <p class="text-sm text-slate-600 mt-1 mb-2">Conservative inorganic growth strategy; one of only two acquisitions.</p>
+                                <div class="font-mono font-bold text-slate-700 bg-slate-100 px-2 py-1 rounded inline-block text-xs">Undisclosed</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Tab 6: Detailed Financials -->
+                <div id="main-tab-detailed" class="main-tab-content flex-col h-full hidden">
+                    <!-- Sub-nav -->
+                    <div class="flex border-b border-slate-200 bg-slate-50 px-4 overflow-x-auto no-scrollbar shrink-0">
+                        <button onclick="switchSubTab('detailed', 'cnxn')" data-sub-tab="detailed-cnxn" class="sub-nav-btn active px-4 py-3 text-sm font-medium text-blue-800 border-b-2 border-blue-800 whitespace-nowrap">Connection (CNXN)</button>
+                        <button onclick="switchSubTab('detailed', 'nsit')" data-sub-tab="detailed-nsit" class="sub-nav-btn px-4 py-3 text-sm font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap border-b-2 border-transparent">Insight (NSIT)</button>
+                        <button onclick="switchSubTab('detailed', 'cdw')" data-sub-tab="detailed-cdw" class="sub-nav-btn px-4 py-3 text-sm font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap border-b-2 border-transparent">CDW</button>
+                        <button onclick="switchSubTab('detailed', 'plus')" data-sub-tab="detailed-plus" class="sub-nav-btn px-4 py-3 text-sm font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap border-b-2 border-transparent">e+ (PLUS)</button>
+                    </div>
+
+                    <div class="flex-1 overflow-y-auto p-6 bg-slate-50/50">
+                        <div id="detailed-tables-container" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden overflow-x-auto">
+                            <!-- Tables injected via JS -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+        Chart.register(ChartDataLabels); // Register Datalabels Globally
+
+        // Updated Palette: CNXN is Dark Blue (blue-800), PLUS is Sky Blue (sky-500)
+        const colors = { CNXN: '#1e40af', NSIT: '#663399', CDW: '#cc0000', PLUS: '#0ea5e9' };
+
+        // Core Chart Data (Corrected based on provided images)
+        const data = {
+            labels: ['FQ1 25', 'FQ2 25', 'FQ3 25', 'FQ4 25', 'FQ1 26'],
+            opMargin: {
+                CNXN: [2.5, 4.1, 4.3, 3.8, 3.2],
+                NSIT: [4.0, 5.1, 5.4, 7.1, 5.2],
+                CDW:  [7.0, 7.5, 8.0, 7.3, 6.6],
+                PLUS: [5.2, 6.6, 8.0, 7.1, 6.5]
+            },
+            ebitda: {
+                CNXN: [2.9, 4.4, 4.7, 4.2, 3.6],
+                NSIT: [5.2, 6.3, 6.7, 8.5, 6.5],
+                CDW:  [8.4, 8.8, 9.2, 8.7, 7.9],
+                PLUS: [6.8, 7.7, 9.2, 8.2, 7.6]
+            },
+            gpYoy: {
+                CNXN: [7.8, 0.9, 2.4, 4.5, 4.3],
+                NSIT: [-7.8, -2.4, 0.5, 8.8, 13.7],
+                CDW:  [5.5, 4.9, 4.6, 8.6, 6.0],
+                PLUS: [5.4, 16.8, 27.4, 26.8, 10.7]
+            },
+            sgaYoy: {
+                CNXN: [5.0, 1.6, 2.9, 1.7, -0.4],
+                NSIT: [-3.7, -0.2, -1.6, 7.1, 9.1],
+                CDW:  [3.5, 6.7, 12.4, 14.4, 7.0],
+                PLUS: [11.7, 16.1, 14.1, 6.1, 1.2]
+            },
+            roe: {
+                CNXN: [6, 11, 11, 9, 8],
+                NSIT: [2, 12, 13, 13, 7],
+                CDW:  [38, 45, 46, 43, 36],
+                PLUS: [7, 11, 15, 13, 10]
+            }
+        };
+
+        // P&L Data
+        const plData = {
+            quarters: ['FQ4 24', 'FQ1 25', 'FQ2 25', 'FQ3 25', 'FQ4 25', 'FQ1 26'],
+            cnxn: [
+                ['Revenue', '$708,897', '$701,046', '$759,693', '$709,068', '$702,939', '$721,866'],
+                ['COGS', '$579,123', '$573,735', '$621,927', '$570,423', '$567,331', '$589,129'],
+                ['Gross Profit', '$129,774', '$127,311', '$137,766', '$138,645', '$135,608', '$132,737'],
+                ['GM %', '18.31%', '18.16%', '18.13%', '19.55%', '19.29%', '18.39%'],
+                ['SG&A + Depr', '$107,136', '$109,859', '$106,869', '$108,379', '$108,928', '$109,452'],
+                ['Op Income', '$22,638', '$17,452', '$30,897', '$30,266', '$26,680', '$23,285'],
+                ['Net Income', '$20,721', '$13,481', '$24,789', '$24,740', '$20,712', '$17,223'],
+                ['EBITDA', '$25,804', '$20,551', '$33,763', '$33,154', '$29,530', '$26,082']
+            ],
+            nsit: [
+                ['Revenue', '$2,072,665', '$2,103,556', '$2,091,482', '$2,003,845', '$2,048,297', '$2,127,986'],
+                ['COGS', '$1,633,027', '$1,697,079', '$1,649,155', '$1,569,650', '$1,569,869', '$1,665,835'],
+                ['Gross Profit', '$439,638', '$406,477', '$442,327', '$434,195', '$478,428', '$462,151'],
+                ['GM %', '21%', '19%', '21%', '22%', '23%', '22%'],
+                ['SG&A', '$311,500', '$322,703', '$336,024', '$326,178', '$333,512', '$352,186'],
+                ['Op Income', '$128,138', '$83,774', '$106,303', '$108,017', '$144,916', '$109,965'],
+                ['Net Income', '$37,012', '$7,514', '$46,932', '$50,947', '$51,954', '$30,009'],
+                ['EBITDA', '$153,918', '$109,553', '$132,235', '$134,277', '$173,265', '$138,443']
+            ],
+            cdw: [
+                ['Revenue', '$5,186,000', '$5,199,100', '$5,976,600', '$5,737,400', '$5,511,000', '$5,679,800'],
+                ['COGS', '$4,030,700', '$4,076,800', '$4,735,400', '$4,481,900', '$4,256,600', '$4,489,800'],
+                ['Gross Profit', '$1,155,300', '$1,122,300', '$1,241,200', '$1,255,500', '$1,254,400', '$1,190,000'],
+                ['GM %', '22%', '22%', '21%', '22%', '23%', '21%'],
+                ['SG&A', '$744,400', '$760,900', '$790,900', '$799,200', '$851,600', '$814,000'],
+                ['Op Income', '$410,900', '$361,400', '$450,300', '$456,300', '$402,800', '$376,000'],
+                ['Net Income', '$264,200', '$224,900', '$271,200', '$291,000', '$279,500', '$235,400'],
+                ['EBITDA', '$480,400', '$436,300', '$523,600', '$529,600', '$476,900', '$451,100']
+            ],
+            plus: [
+                ['Revenue', '$554,461', '$535,652', '$493,372', '$493,221', '$477,923', '$637,315'],
+                ['COGS', '$424,116', '$408,778', '$366,070', '$368,143', '$345,057', '$489,099'],
+                ['Gross Profit', '$126,065', '$126,874', '$127,302', '$125,078', '$132,866', '$148,216'],
+                ['GM %', '23%', '24%', '26%', '25%', '28%', '23%'],
+                ['SG&A + Depr', '$96,822', '$91,665', '$99,263', '$108,579', '$108,105', '$106,468'],
+                ['Op Income', '$29,243', '$35,209', '$28,039', '$16,499', '$24,761', '$41,748'],
+                ['Net Income', '$21,983', '$27,339', '$31,310', '$24,133', '$21,794', '$37,697'],
+                ['EBITDA', '$35,610', '$40,417', '$34,159', '$24,517', '$32,598', '$49,159']
+            ]
+        };
+
+        let finChartInstance = null;
+        let radarChartInstance = null;
+        let acqVolChartInstance = null;
+        let acqCostChartInstance = null;
+
+        const tabTitles = {
+            'earnings': 'Q1 26 Earnings Call Highlights',
+            'financials': 'Financial Comparisons',
+            'eps': 'Analyst vs EPS',
+            'cloud': 'Cloud & AI Capabilities',
+            'acquisitions': 'M&A Strategy',
+            'detailed': 'Detailed Financials'
+        };
+
+        function switchMainTab(tabId) {
+            document.querySelectorAll('.main-tab-content').forEach(el => {
+                el.classList.add('hidden');
+                el.classList.remove('flex');
+            });
+            
+            const target = document.getElementById(`main-tab-${tabId}`);
+            if (target) {
+                target.classList.remove('hidden');
+                target.classList.add('flex');
+            }
+
+            document.getElementById('page-title').innerText = tabTitles[tabId];
+
+            document.querySelectorAll('.main-nav-btn').forEach(btn => {
+                btn.className = 'main-nav-btn hover:bg-slate-800 hover:text-white text-slate-400 w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all font-medium text-sm';
+            });
+            const activeDesktop = document.querySelector(`.main-nav-btn[data-main-tab="${tabId}"]`);
+            if(activeDesktop) activeDesktop.className = 'main-nav-btn bg-blue-800 text-white shadow-md w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all font-medium text-sm';
+
+            document.querySelectorAll('.mobile-nav-btn').forEach(btn => {
+                btn.className = 'mobile-nav-btn text-slate-400 flex-shrink-0 flex items-center gap-2 px-4 py-3';
+            });
+            const activeMobile = document.querySelector(`.mobile-nav-btn[data-main-tab="${tabId}"]`);
+            if(activeMobile) activeMobile.className = 'mobile-nav-btn border-b-2 border-blue-500 text-blue-400 flex-shrink-0 flex items-center gap-2 px-4 py-3';
+
+            if (tabId === 'financials') updateFinancialMetric('opMargin');
+            if (tabId === 'cloud') {
+                switchSubTab('cloud', 'overview');
+                renderCloudChart();
+                renderCloudTables();
+            }
+            if (tabId === 'acquisitions') renderAcqCharts();
+            if (tabId === 'detailed') renderDetailedTable('cnxn');
+        }
+
+        function switchSubTab(parent, child) {
+            const parentEl = document.getElementById(`main-tab-${parent}`);
+            parentEl.querySelectorAll('.sub-tab-content').forEach(el => {
+                el.classList.add('hidden');
+                el.classList.remove('block');
+            });
+
+            const target = document.getElementById(`sub-${parent}-${child}`);
+            if (target) {
+                target.classList.remove('hidden');
+                target.classList.add('block');
+            }
+
+            parentEl.querySelectorAll('.sub-nav-btn').forEach(btn => {
+                btn.className = 'sub-nav-btn px-4 py-3 text-sm font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap border-b-2 border-transparent';
+            });
+            const activeBtn = parentEl.querySelector(`.sub-nav-btn[data-sub-tab="${parent}-${child}"]`);
+            if(activeBtn) activeBtn.className = 'sub-nav-btn active px-4 py-3 text-sm font-medium text-blue-800 border-b-2 border-blue-800 whitespace-nowrap';
+
+            if (parent === 'detailed') {
+                renderDetailedTable(child);
+            }
+        }
+
+        function updateFinancialMetric(metric) {
+            const titles = {
+                opMargin: 'Operating Margin %', ebitda: 'EBITDA %', 
+                gpYoy: 'Gross Profit YoY %', sgaYoy: 'SG&A YoY %', roe: 'Return on Equity %'
+            };
+            document.getElementById('fin-chart-title').innerText = titles[metric];
+
+            document.querySelectorAll('.fin-sub-btn').forEach(btn => {
+                btn.className = 'fin-sub-btn px-4 py-3 text-sm font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap border-b-2 border-transparent';
+            });
+            document.getElementById(`fin-btn-${metric}`).className = 'fin-sub-btn active px-4 py-3 text-sm font-medium text-blue-800 border-b-2 border-blue-800 whitespace-nowrap';
+            
+            const ctx = document.getElementById('financialChart').getContext('2d');
+            if (finChartInstance) finChartInstance.destroy();
+
+            const isBar = metric === 'roe' || metric === 'gpYoy' || metric === 'sgaYoy';
+            const ds = data[metric];
+
+            finChartInstance = new Chart(ctx, {
+                type: isBar ? 'bar' : 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: [
+                        { label: 'CDW', data: ds.CDW, backgroundColor: colors.CDW, borderColor: colors.CDW, borderWidth: isBar ? 0 : 3, tension: 0.1 },
+                        { label: 'NSIT', data: ds.NSIT, backgroundColor: colors.NSIT, borderColor: colors.NSIT, borderWidth: isBar ? 0 : 3, tension: 0.1 },
+                        { label: 'PLUS', data: ds.PLUS, backgroundColor: colors.PLUS, borderColor: colors.PLUS, borderWidth: isBar ? 0 : 3, tension: 0.1 },
+                        { label: 'CNXN', data: ds.CNXN, backgroundColor: colors.CNXN, borderColor: colors.CNXN, borderWidth: isBar ? 0 : 4, tension: 0.1 }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { 
+                        tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${c.raw.toFixed(1)}%` } },
+                        datalabels: {
+                            display: true,
+                            color: function(context) {
+                                return context.dataset.borderColor || context.dataset.backgroundColor;
+                            },
+                            align: isBar ? 'end' : 'top',
+                            anchor: isBar ? 'end' : 'center',
+                            font: { weight: 'bold', size: 11 },
+                            formatter: (val) => val.toFixed(1),
+                            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                            borderRadius: 4,
+                            padding: 2
+                        }
+                    },
+                    scales: { y: { grid: { borderDash: [3, 3] }, ticks: { callback: (v) => v.toFixed(1) + '%' } }, x: { grid: { display: false } } }
+                }
+            });
+        }
+
+        function renderCloudChart() {
+            if (radarChartInstance) return;
+            const ctx = document.getElementById('radarChart').getContext('2d');
+            radarChartInstance = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Microsoft', 'Google Cloud', 'AWS Competencies'],
+                    datasets: [
+                        { label: 'Insight', data: [21, 11, 5], backgroundColor: colors.NSIT + '66', borderColor: colors.NSIT },
+                        { label: 'CDW', data: [18, 3, 8], backgroundColor: colors.CDW + '66', borderColor: colors.CDW },
+                        { label: 'PLUS', data: [1, 0, 4], backgroundColor: colors.PLUS + '66', borderColor: colors.PLUS },
+                        { label: 'Connection', data: [10, 0, 0], backgroundColor: colors.CNXN + '99', borderColor: colors.CNXN }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { datalabels: { display: false } },
+                    scales: { 
+                        r: { 
+                            ticks: { display: false, max: 25 },
+                            pointLabels: { font: { size: 16, weight: 'bold' }, color: '#1e293b' }
+                        } 
+                    }
+                }
+            });
+        }
+
+        // Generate Cloud Capabilities Tables based on boolean maps
+        function renderCloudTables() {
+            const checkIcon = `<i data-lucide="check" class="w-5 h-5 text-emerald-500 mx-auto"></i>`;
+            const dashIcon = `<span class="text-slate-300">-</span>`;
+
+            // Microsoft Table
+            const msftContainer = document.getElementById('msft-table-container');
+            if (msftContainer && msftContainer.innerHTML.trim() === '') {
+                const msftCaps = [
+                    { name: 'AI Apps on Microsoft Azure', cnxn: false, nsit: false, cdw: true, plus: false },
+                    { name: 'Analytics on Microsoft Azure', cnxn: false, nsit: true, cdw: true, plus: false },
+                    { name: 'Data Warehouse Migration to Microsoft Azure', cnxn: false, nsit: true, cdw: false, plus: false },
+                    { name: 'Infra and Database migration to Microsoft Azure', cnxn: true, nsit: false, cdw: true, plus: true },
+                    { name: 'Kubernetes on Microsoft Azure', cnxn: false, nsit: true, cdw: true, plus: false },
+                    { name: 'Microsoft Azure VMware Solution', cnxn: false, nsit: true, cdw: false, plus: false },
+                    { name: 'Microsoft Azure Virtual Desktop', cnxn: true, nsit: false, cdw: true, plus: false },
+                    { name: 'Adoption and Change management', cnxn: true, nsit: true, cdw: true, plus: false },
+                    { name: 'Calling for Microsoft Teams', cnxn: false, nsit: true, cdw: true, plus: false },
+                    { name: 'Meetings and Meeting Rooms for Microsoft Teams', cnxn: false, nsit: true, cdw: true, plus: false },
+                    { name: 'Modernize Endpoints', cnxn: true, nsit: true, cdw: true, plus: false },
+                    { name: 'Cloud Security', cnxn: true, nsit: true, cdw: true, plus: false },
+                    { name: 'Id & Access Management', cnxn: true, nsit: true, cdw: true, plus: false },
+                    { name: 'Threat Protection', cnxn: true, nsit: true, cdw: true, plus: false },
+                    { name: 'Business Intelligence', cnxn: false, nsit: true, cdw: false, plus: false },
+                    { name: 'Intelligent Automation', cnxn: false, nsit: true, cdw: false, plus: false },
+                    { name: 'Low Code Application Development', cnxn: false, nsit: true, cdw: false, plus: false }, 
+                    { name: 'Small and Midsize Business Management', cnxn: false, nsit: true, cdw: false, plus: false },
+                    { name: 'Migrate Enterprise Applications to Microsoft Azure', cnxn: false, nsit: false, cdw: true, plus: false },
+                    { name: 'Copilot', cnxn: true, nsit: true, cdw: true, plus: false },
+                    { name: 'Secure AI Productivity', cnxn: true, nsit: true, cdw: true, plus: false },
+                    { name: 'Data Security', cnxn: true, nsit: true, cdw: true, plus: false },
+                    { name: 'AI Platform on Microsoft Azure', cnxn: false, nsit: true, cdw: true, plus: false },
+                    { name: 'Sales', cnxn: false, nsit: true, cdw: false, plus: false },
+                    { name: 'Service', cnxn: false, nsit: true, cdw: false, plus: false },
+                    { name: 'Networking Services in Microsoft Azure', cnxn: false, nsit: false, cdw: true, plus: false }
+                ];
+                
+                let msftHtml = `
+                <div class="overflow-x-auto rounded-xl border border-slate-200">
+                    <table class="min-w-full text-sm text-left bg-white">
+                        <thead class="text-xs text-slate-600 uppercase bg-slate-50 border-b border-slate-200">
+                            <tr>
+                                <th class="px-4 py-3 font-semibold">Specialization</th>
+                                <th class="px-4 py-3 text-center w-24">CNXN</th>
+                                <th class="px-4 py-3 text-center w-24">NSIT</th>
+                                <th class="px-4 py-3 text-center w-24">CDW</th>
+                                <th class="px-4 py-3 text-center w-24">PLUS</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">`;
+                
+                msftCaps.forEach(cap => {
+                    msftHtml += `
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="px-4 py-2 font-medium text-slate-700">${cap.name}</td>
+                            <td class="px-4 py-2 text-center">${cap.cnxn ? checkIcon : dashIcon}</td>
+                            <td class="px-4 py-2 text-center">${cap.nsit ? checkIcon : dashIcon}</td>
+                            <td class="px-4 py-2 text-center">${cap.cdw ? checkIcon : dashIcon}</td>
+                            <td class="px-4 py-2 text-center">${cap.plus ? checkIcon : dashIcon}</td>
+                        </tr>`;
+                });
+                msftHtml += `</tbody></table></div>`;
+                msftContainer.innerHTML = msftHtml;
+            }
+
+            // GCP Table
+            const gcpContainer = document.getElementById('gcp-table-container');
+            if (gcpContainer && gcpContainer.innerHTML.trim() === '') {
+                // SADA capabilities are merged into NSIT column as per instruction
+                const gcpCaps = [
+                    { name: 'Data Center Modernization - Services', cnxn: false, nsit: true, cdw: false, plus: false },
+                    { name: 'Machine Learning - Services', cnxn: false, nsit: true, cdw: false, plus: false },
+                    { name: 'Security - Services', cnxn: false, nsit: true, cdw: false, plus: false },
+                    { name: 'Location-Based Services', cnxn: false, nsit: true, cdw: false, plus: false },
+                    { name: 'Data Analytics - Services', cnxn: false, nsit: true, cdw: false, plus: false },
+                    { name: 'Infrastructure - Services', cnxn: false, nsit: true, cdw: true, plus: false },
+                    { name: 'Work Transformation - Enterprise', cnxn: false, nsit: true, cdw: false, plus: false },
+                    { name: 'Cloud Migration - Services', cnxn: false, nsit: true, cdw: true, plus: false },
+                    { name: 'Data Management - Services', cnxn: false, nsit: true, cdw: false, plus: false },
+                    { name: 'Application Development - Services', cnxn: false, nsit: true, cdw: true, plus: false },
+                    { name: 'Generative AI - Services', cnxn: false, nsit: true, cdw: false, plus: false }
+                ];
+
+                let gcpHtml = `
+                <div class="overflow-x-auto rounded-xl border border-slate-200">
+                    <table class="min-w-full text-sm text-left bg-white">
+                        <thead class="text-xs text-slate-600 uppercase bg-slate-50 border-b border-slate-200">
+                            <tr>
+                                <th class="px-4 py-3 font-semibold">Specialization</th>
+                                <th class="px-4 py-3 text-center w-24">CNXN</th>
+                                <th class="px-4 py-3 text-center w-24">NSIT (w/ SADA)</th>
+                                <th class="px-4 py-3 text-center w-24">CDW</th>
+                                <th class="px-4 py-3 text-center w-24">PLUS</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">`;
+                
+                gcpCaps.forEach(cap => {
+                    gcpHtml += `
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="px-4 py-2 font-medium text-slate-700">${cap.name}</td>
+                            <td class="px-4 py-2 text-center">${cap.cnxn ? checkIcon : dashIcon}</td>
+                            <td class="px-4 py-2 text-center">${cap.nsit ? checkIcon : dashIcon}</td>
+                            <td class="px-4 py-2 text-center">${cap.cdw ? checkIcon : dashIcon}</td>
+                            <td class="px-4 py-2 text-center">${cap.plus ? checkIcon : dashIcon}</td>
+                        </tr>`;
+                });
+                gcpHtml += `</tbody></table></div>`;
+                gcpContainer.innerHTML = gcpHtml;
+            }
+            
+            // Re-initialize any newly injected icons
+            lucide.createIcons();
+        }
+
+        function renderAcqCharts() {
+            if (acqVolChartInstance) return;
+            const labels = ['CDW', 'NSIT', 'CNXN'];
+            
+            acqVolChartInstance = new Chart(document.getElementById('acqVolumeChart').getContext('2d'), {
+                type: 'bar',
+                data: { labels: labels, datasets: [{ data: [12, 14, 2], backgroundColor: [colors.CDW, colors.NSIT, colors.CNXN] }] },
+                options: { 
+                    indexAxis: 'y', 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { 
+                        legend: { display: false },
+                        datalabels: {
+                            display: true,
+                            color: '#ffffff',
+                            font: { weight: 'bold', size: 14 },
+                            align: 'start',
+                            anchor: 'end',
+                            padding: { right: 10 }
+                        }
+                    }, 
+                    scales: { x: { display: false } } 
+                }
+            });
+
+            acqCostChartInstance = new Chart(document.getElementById('acqCostChart').getContext('2d'), {
+                type: 'bar',
+                data: { labels: labels, datasets: [{ data: [3670, 2600, 0], backgroundColor: [colors.CDW, colors.NSIT, colors.CNXN] }] },
+                options: { 
+                    indexAxis: 'y', 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { 
+                        legend: { display: false }, 
+                        tooltip: { callbacks: { label: (c) => `$${c.raw}M` } },
+                        datalabels: {
+                            display: true,
+                            color: function(context) {
+                                return context.raw === 0 ? '#64748b' : '#ffffff';
+                            },
+                            font: { weight: 'bold', size: 14 },
+                            formatter: (value) => value > 0 ? `$${value}M` : 'N/A',
+                            align: function(context) {
+                                return context.raw === 0 ? 'end' : 'start';
+                            },
+                            anchor: function(context) {
+                                return context.raw === 0 ? 'start' : 'end';
+                            },
+                            padding: { right: 10, left: 10 }
+                        }
+                    }, 
+                    scales: { x: { display: false } } 
+                }
+            });
+        }
+
+        function renderDetailedTable(companyKey) {
+            const container = document.getElementById('detailed-tables-container');
+            const d = plData[companyKey];
+            const compNames = {cnxn: 'Connection', nsit: 'Insight', cdw: 'CDW', plus: 'e+'};
+            
+            let html = `
+                <table class="min-w-full text-sm text-left fin-table">
+                    <thead class="text-xs text-slate-600 uppercase bg-slate-100 border-b border-slate-200">
+                        <tr>
+                            <th class="px-4 py-3">${compNames[companyKey]} P&L ($ in Thousands)</th>`;
+            
+            plData.quarters.forEach(q => { html += `<th class="px-4 py-3 text-right">${q}</th>`; });
+            html += `</tr></thead><tbody class="divide-y divide-slate-100">`;
+
+            d.forEach((row, i) => {
+                const isHighlight = row[0] === 'Gross Profit' || row[0] === 'Op Income' || row[0] === 'Net Income' || row[0] === 'EBITDA';
+                html += `<tr class="${isHighlight ? 'bg-slate-50 font-semibold text-slate-800' : 'text-slate-600'}">`;
+                html += `<td class="px-4 py-3">${row[0]}</td>`;
+                for (let j = 1; j < row.length; j++) {
+                    html += `<td class="px-4 py-3 text-right font-mono">${row[j]}</td>`;
+                }
+                html += `</tr>`;
+            });
+
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+        }
+
+    </script>
+</body>
+</html>
